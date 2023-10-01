@@ -1,13 +1,12 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError, NotFoundError } from "./errors";
-import {FriendNotFoundError, FriendRequestAlreadyExistsError, AlreadyFriendsError, FriendRequestNotFoundError} from './friend'
+import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestNotFoundError } from './friend';
 
 export interface ExpireFriendshipDoc extends BaseDoc {
   user1: ObjectId;
   user2: ObjectId;
-  createdOn: Number;
-  duration: Number;
+  createdOn: number;
+  duration: number;
 }
 
 export interface ExpireFriendRequestDoc extends BaseDoc {
@@ -15,7 +14,7 @@ export interface ExpireFriendRequestDoc extends BaseDoc {
   to: ObjectId;
   status: "pending" | "rejected" | "accepted";
 
-  duration: Number
+  duration: number
 }
 
 export default class ExpireFriendConcept {
@@ -28,7 +27,7 @@ export default class ExpireFriendConcept {
     });
   }
     
-  async sendRequest(from: ObjectId, to: ObjectId, duration: Number) {
+  async sendRequest(from: ObjectId, to: ObjectId, duration: number) {
     await this.canSendRequest(from, to);
     //Send a request with duration
     await this.requests.createOne({ from, to, status: "pending", duration: duration });
@@ -75,8 +74,31 @@ export default class ExpireFriendConcept {
     // Making sure to compare ObjectId using toString()
     return friendships.map((friendship) => (friendship.user1.toString() === user.toString() ? friendship.user2 : friendship.user1));
   }
-  
-  private async addFriend(user1: ObjectId, user2: ObjectId, createdOn: Number, duration: Number) {
+
+  //remove all expired friend
+  async removeExpiredFriend(user: ObjectId){
+    const friendships = await this.friends.readMany({
+      $or: [{ user1: user }, { user2: user }],
+    });
+
+    const currentTime = Date.now();
+
+    //check for expired friendship
+    for(const friendship of friendships){
+
+      const createdOn = friendship.createdOn 
+      const duration = friendship.duration
+
+      //if the friendship is expired, remove the friendship connection
+      if((createdOn+ duration ) >= currentTime){
+        this.removeFriend(friendship.user1,friendship.user1)
+      }
+
+    }
+    
+  }
+
+  private async addFriend(user1: ObjectId, user2: ObjectId, createdOn: number, duration: number) {
     void this.friends.createOne({ user1, user2, createdOn, duration});
   }
 
