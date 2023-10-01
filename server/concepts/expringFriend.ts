@@ -85,17 +85,17 @@ export default class ExpireFriendConcept {
 
     //check for expired friendship
     for(const friendship of friendships){
-
+      
       const createdOn = friendship.createdOn 
       const duration = friendship.duration
-
       //if the friendship is expired, remove the friendship connection
       if((createdOn+ duration ) >= currentTime){
-        this.removeFriend(friendship.user1,friendship.user1)
+        console.log('here')
+        await this.removeFriend(friendship.user1,friendship.user2)
       }
 
     }
-    
+    return {msg: `removed expired friend`} 
   }
 
   private async addFriend(user1: ObjectId, user2: ObjectId, createdOn: number, duration: number) {

@@ -1,12 +1,12 @@
 import { ObjectId } from "mongodb";
 
-import { Router, getExpressRouter } from "./framework/router";
-
-import { Friend, Post, User, WebSession } from "./app";
+import { ExpireFriend, Post, User, WebSession } from "./app";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
+import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
+
 
 class Routes {
   @Router.get("/session")
@@ -44,9 +44,11 @@ class Routes {
     return await User.delete(user);
   }
 
+  //sync with remove expired friend so expired friendship are remove when log in
   @Router.post("/login")
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
+    await ExpireFriend.removeExpiredFriend(u._id);
     WebSession.start(session, u._id);
     return { msg: "Logged in!" };
   }
@@ -90,52 +92,61 @@ class Routes {
     return Post.delete(_id);
   }
 
-  @Router.get("/friends")
+  @Router.get("/f")
   async getFriends(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
-    return await User.idsToUsernames(await Friend.getFriends(user));
+    return await User.idsToUsernames(await ExpireFriend.getFriends(user));
   }
 
-  @Router.delete("/friends/:friend")
+  @Router.delete("/f/remove/:friend")
   async removeFriend(session: WebSessionDoc, friend: string) {
     const user = WebSession.getUser(session);
     const friendId = (await User.getUserByUsername(friend))._id;
-    return await Friend.removeFriend(user, friendId);
+    return await ExpireFriend.removeFriend(user, friendId);
   }
 
-  @Router.get("/friend/requests")
-  async getRequests(session: WebSessionDoc) {
-    const user = WebSession.getUser(session);
-    return await Responses.friendRequests(await Friend.getRequests(user));
-  }
-
-  @Router.post("/friend/requests/:to")
-  async sendFriendRequest(session: WebSessionDoc, to: string) {
-    const user = WebSession.getUser(session);
-    const toId = (await User.getUserByUsername(to))._id;
-    return await Friend.sendRequest(user, toId);
-  }
-
-  @Router.delete("/friend/requests/:to")
+  @Router.delete("/f/requests/:to")
   async removeFriendRequest(session: WebSessionDoc, to: string) {
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
-    return await Friend.removeRequest(user, toId);
+    return await ExpireFriend.removeRequest(user, toId);
   }
 
-  @Router.put("/friend/accept/:from")
+  @Router.put("/f/accept/:from")
   async acceptFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
-    return await Friend.acceptRequest(fromId, user);
+    return await ExpireFriend.acceptRequest(fromId, user);
   }
 
-  @Router.put("/friend/reject/:from")
+  @Router.put("/f/reject/:from")
   async rejectFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
-    return await Friend.rejectRequest(fromId, user);
+    return await ExpireFriend.rejectRequest(fromId, user);
+  }
+
+  @Router.post("/f/request/:to/:duration")
+  async sendExpireFriendRequest(session: WebSessionDoc, to: string, duration: number){
+    const user = WebSession.getUser(session);
+    const toId = (await User.getUserByUsername(to))._id;
+    return await ExpireFriend.sendRequest(user, toId, duration);
+  }
+
+  @Router.get("/f/requests")
+  async getRequests(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Responses.expringFriendRequests(await ExpireFriend.getRequests(user));
+  }
+
+  @Router.delete("/f/RemoveExpire")
+  async removeExpiredFriend(session: WebSessionDoc) {
+    console.log(session)
+    const user = WebSession.getUser(session);
+    console.log(user)
+    return await ExpireFriend.removeExpiredFriend(user);
   }
 }
 
 export default getExpressRouter(new Routes());
+;
