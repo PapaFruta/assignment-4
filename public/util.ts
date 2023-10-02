@@ -1,5 +1,5 @@
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-type InputTag = "input" | "textarea";
+type InputTag = "input" | "textarea" ;
 type Field = InputTag | { [key: string]: Field };
 type Fields = Record<string, Field>;
 
@@ -125,6 +125,19 @@ const operations: operation[] = [
     method: "DELETE",
     fields: {},
   },
+  {
+    name: "Check Authentication Status",
+    endpoint: "/api/isVertify",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Vertify with government ID",
+    endpoint: "/api/vertify/:id",
+    method: "POST",
+    fields: {id:"input"},
+  },
+  
 ];
 
 // Do not edit below here.

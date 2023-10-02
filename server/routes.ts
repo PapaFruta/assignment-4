@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { ExpireFriend, Post, User, WebSession } from "./app";
+import { Authentication, ExpireFriend, Post, User, WebSession } from "./app";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -28,7 +28,11 @@ class Routes {
   @Router.post("/users")
   async createUser(session: WebSessionDoc, username: string, password: string) {
     WebSession.isLoggedOut(session);
-    return await User.create(username, password);
+    const user = await User.create(username, password);
+    const id = await User.getUserByUsername(username);
+    await Authentication.create(id._id);
+
+    return user
   }
 
   @Router.patch("/users")
@@ -48,7 +52,9 @@ class Routes {
   @Router.post("/login")
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
+
     await ExpireFriend.removeExpiredFriend(u._id);
+
     WebSession.start(session, u._id);
     return { msg: "Logged in!" };
   }
@@ -141,10 +147,20 @@ class Routes {
 
   @Router.delete("/f/RemoveExpire")
   async removeExpiredFriend(session: WebSessionDoc) {
-    console.log(session)
     const user = WebSession.getUser(session);
-    console.log(user)
     return await ExpireFriend.removeExpiredFriend(user);
+  }
+
+  @Router.get("/isVertify")
+  async isVertify(session: WebSessionDoc){
+    const user = WebSession.getUser(session);
+    return await Authentication.isVertify(user);
+  }
+
+  @Router.post("/vertify/:id")
+  async vertify(session:WebSessionDoc, id: String){
+    const user = WebSession.getUser(session);
+    return await Authentication.vertify(user,id);
   }
 }
 
