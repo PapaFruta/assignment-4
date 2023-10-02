@@ -2,14 +2,14 @@ import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
-export interface PostDoc extends BaseDoc {
+export interface AuthenticationDoc extends BaseDoc {
     user: ObjectId;
     vertified: Boolean;
 }
 
 export default class AuthenticationConcept{
 
-    public readonly authentication = new DocCollection<PostDoc>("auths");
+    public readonly authentication = new DocCollection<AuthenticationDoc>("auths");
 
     async create(user: ObjectId) {
         const _id = await this.authentication.createOne({ user, vertified: false });

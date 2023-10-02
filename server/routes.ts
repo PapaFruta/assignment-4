@@ -1,11 +1,12 @@
 import { ObjectId } from "mongodb";
 
-import { Authentication, ExpireFriend, Post, User, WebSession } from "./app";
+import { Authentication, ExpireFriend, Post, Profile, User, WebSession } from "./app";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
+import { ProfileDoc } from "./concepts/profile";
 
 
 class Routes {
@@ -26,12 +27,12 @@ class Routes {
   }
 
   @Router.post("/users")
-  async createUser(session: WebSessionDoc, username: string, password: string) {
+  async createUser(session: WebSessionDoc, username: string, password: string, profilePic:String, first:String, last:String) {
     WebSession.isLoggedOut(session);
     const user = await User.create(username, password);
     const id = await User.getUserByUsername(username);
     await Authentication.create(id._id);
-
+    await Profile.create(id._id,profilePic,first,last);
     return user
   }
 
@@ -161,6 +162,18 @@ class Routes {
   async vertify(session:WebSessionDoc, id: String){
     const user = WebSession.getUser(session);
     return await Authentication.vertify(user,id);
+  }
+
+  @Router.get("/profile")
+  async getProfile(session: WebSessionDoc){
+    const user = WebSession.getUser(session);
+    return await Profile.get(user);
+  }
+
+  @Router.patch("/profile/update")
+  async updateProfile(session: WebSessionDoc, update: Partial<ProfileDoc>) {
+    const user = WebSession.getUser(session);
+    return await Profile.update(user, update);
   }
 }
 

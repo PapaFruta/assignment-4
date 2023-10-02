@@ -21,7 +21,7 @@ const operations: operation[] = [
     name: "Create User",
     endpoint: "/api/users",
     method: "POST",
-    fields: { username: "input", password: "input" },
+    fields: { username: "input", password: "input", profilePic: "input", first: "input", last: "input" },
   },
   {
     name: "Login",
@@ -137,7 +137,18 @@ const operations: operation[] = [
     method: "POST",
     fields: {id:"input"},
   },
-  
+  {
+    name: "Get User Profile",
+    endpoint: "api/profile",
+    method: "GET",
+    fields: {}
+  },
+  {
+    name: "Update Profile",
+    endpoint: "/api/profile/update",
+    method: "PATCH",
+    fields: { update: { profilePic: "input", firstname: "input", lastname: "input"} },
+  }
 ];
 
 // Do not edit below here.
