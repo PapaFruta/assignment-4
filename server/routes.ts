@@ -1,12 +1,12 @@
 import { ObjectId } from "mongodb";
 
 import { Authentication, ExpireFriend, Post, Profile, User, WebSession } from "./app";
-import { PostDoc, PostOptions } from "./concepts/post";
+import { PostDoc } from "./concepts/post";
+import { ProfileDoc } from "./concepts/profile";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import { Router, getExpressRouter } from "./framework/router";
 import Responses from "./responses";
-import { ProfileDoc } from "./concepts/profile";
 
 
 class Routes {
@@ -26,8 +26,16 @@ class Routes {
     return await User.getUserByUsername(username);
   }
 
+  /**
+   * 
+   * sync create user
+   * when create user:
+   * intialize user's authentication status
+   * initialize user's profile
+   * 
+   */
   @Router.post("/users")
-  async createUser(session: WebSessionDoc, username: string, password: string, profilePic:String, first:String, last:String) {
+  async createUser(session: WebSessionDoc, username: string, password: string, profilePic:string, first:string, last:string) {
     WebSession.isLoggedOut(session);
     const user = await User.create(username, password);
     const id = await User.getUserByUsername(username);
@@ -49,7 +57,12 @@ class Routes {
     return await User.delete(user);
   }
 
-  //sync with remove expired friend so expired friendship are remove when log in
+  /**
+   * 
+   * Sync login and auto-removing expiring friend
+   * 
+   * 
+   */
   @Router.post("/login")
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
@@ -79,9 +92,9 @@ class Routes {
   }
 
   @Router.post("/posts")
-  async createPost(session: WebSessionDoc, content: string, options?: PostOptions) {
+  async createPost(session: WebSessionDoc, photos: string, caption?: string) {
     const user = WebSession.getUser(session);
-    const created = await Post.create(user, content, options);
+    const created = await Post.create(user, photos, caption);
     return { msg: created.msg, post: await Responses.post(created.post) };
   }
 
@@ -99,54 +112,54 @@ class Routes {
     return Post.delete(_id);
   }
 
-  @Router.get("/f")
+  @Router.get("/friend")
   async getFriends(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     return await User.idsToUsernames(await ExpireFriend.getFriends(user));
   }
 
-  @Router.delete("/f/remove/:friend")
+  @Router.delete("/friend/remove/:friend")
   async removeFriend(session: WebSessionDoc, friend: string) {
     const user = WebSession.getUser(session);
     const friendId = (await User.getUserByUsername(friend))._id;
     return await ExpireFriend.removeFriend(user, friendId);
   }
 
-  @Router.delete("/f/requests/:to")
+  @Router.delete("/friend/requests/:to")
   async removeFriendRequest(session: WebSessionDoc, to: string) {
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
     return await ExpireFriend.removeRequest(user, toId);
   }
 
-  @Router.put("/f/accept/:from")
+  @Router.put("/friend/accept/:from")
   async acceptFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     return await ExpireFriend.acceptRequest(fromId, user);
   }
 
-  @Router.put("/f/reject/:from")
+  @Router.put("/friend/reject/:from")
   async rejectFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     return await ExpireFriend.rejectRequest(fromId, user);
   }
 
-  @Router.post("/f/request/:to/:duration")
+  @Router.post("/friend/request/")
   async sendExpireFriendRequest(session: WebSessionDoc, to: string, duration: number){
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
     return await ExpireFriend.sendRequest(user, toId, duration);
   }
 
-  @Router.get("/f/requests")
+  @Router.get("/friend/requests")
   async getRequests(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     return await Responses.expringFriendRequests(await ExpireFriend.getRequests(user));
   }
 
-  @Router.delete("/f/RemoveExpire")
+  @Router.delete("/friend/RemoveExpire")
   async removeExpiredFriend(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     return await ExpireFriend.removeExpiredFriend(user);
@@ -159,7 +172,7 @@ class Routes {
   }
 
   @Router.post("/vertify/:id")
-  async vertify(session:WebSessionDoc, id: String){
+  async vertify(session:WebSessionDoc, id: string){
     const user = WebSession.getUser(session);
     return await Authentication.vertify(user,id);
   }
@@ -174,6 +187,60 @@ class Routes {
   async updateProfile(session: WebSessionDoc, update: Partial<ProfileDoc>) {
     const user = WebSession.getUser(session);
     return await Profile.update(user, update);
+  }
+
+  //send chat message
+  @Router.post("/chat/")
+  async startChat(session: WebSessionDoc, to: string, message: string){
+    throw Error('not implemented');
+  }
+
+  //get all message
+  @Router.get("/chat/")
+  async getChat(session: WebSessionDoc, to: string){
+    throw Error('not implemented');
+  }
+
+  //create album
+  @Router.post("/chat/album/:title")
+  async createAlbum(session:WebSessionDoc, title: string, to: string, media: Array<string>){
+    throw Error('not implemented');
+  }
+
+  // @Router.update("/chat/album/:title")
+  // async updateAlbum(session:WebSessionDoc, title: string, to: string, update: Partial<AlbumDoc>){
+  //   throw Error('not implemented');
+  // }
+
+  @Router.get("/chat/album/:id")
+  async getAlbum(session:WebSessionDoc, id: string){
+    throw Error('not implemented');
+  }
+
+  @Router.delete("/chat/album/:id")
+  async deleteAlbum(session:WebSessionDoc, id: string){
+    throw Error('not implemented');
+  }
+
+  //hangout proposal
+  @Router.post("/hangout")
+  async proposeHangout(session:WebSessionDoc, activity: string, location: string, time: number){
+    throw Error('not implemented');
+  }
+
+  @Router.get("/hangout/:id")
+  async getHangout(session:WebSessionDoc, id: string){
+    throw Error('not implemented');
+  }
+  
+  // @Router.patch("/hangout/:id")
+  // async suggestEdit(session:WebSessionDoc, id: string, update: Partial<HangoutDoc>){
+  //   throw Error('not implemented');
+  // }
+
+  @Router.delete("/hangout/:id")
+  async deleteHangout(session:WebSessionDoc, id: string){
+    throw Error('not implemented');
   }
 }
 

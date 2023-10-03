@@ -31,3 +31,12 @@ export class NotAllowedError extends FormattableError {
 export class NotFoundError extends FormattableError {
   public readonly HTTP_CODE = 404;
 }
+
+
+/**
+ * Corresponds to an action that attempts to duplicate a resource that cannot be dup
+ * If this action was a HTTP request, status code for this error would be 404 Not Found.
+ */
+export class DuplicateError extends FormattableError {
+  public readonly HTTP_CODE = 405;
+}

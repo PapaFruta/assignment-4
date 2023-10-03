@@ -1,5 +1,5 @@
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-type InputTag = "input" | "textarea" ;
+type InputTag = "input" | "textarea";
 type Field = InputTag | { [key: string]: Field };
 type Fields = Record<string, Field>;
 
@@ -63,7 +63,7 @@ const operations: operation[] = [
     name: "Create Post",
     endpoint: "/api/posts",
     method: "POST",
-    fields: { content: "input" },
+    fields: { photos: "input" , caption: "input"},
   },
   {
     name: "Update Post",
@@ -79,49 +79,49 @@ const operations: operation[] = [
   },
   {
     name: "Request Friend",
-    endpoint: "/api/f/request/:to/:duration",
+    endpoint: "/api/friend/request/",
     method: "POST",
     fields: { to: "input", duration: "input" },
   },
   {
     name: "Friend Requests Inbox",
-    endpoint: "api/f/requests",
+    endpoint: "api/friend/requests",
     method: "GET",
     fields: {},
   },
   {
     name: "Friend List",
-    endpoint: "api/f",
+    endpoint: "api/friend",
     method: "GET",
     fields: {},
   },
   {
     name: "Delete Friend",
-    endpoint: "/api/f/remove/:friend",
+    endpoint: "/api/friend/remove/:friend",
     method: "DELETE",
     fields: { friend: "input" },
   },
   {
     name: "Delete Friend Request",
-    endpoint: "/api/f/requests/:to",
+    endpoint: "/api/friend/requests/:to",
     method: "DELETE",
     fields: { to: "input" },
   },
   {
     name: "Accept Friend Request",
-    endpoint: "/api/f/accept/:from",
+    endpoint: "/api/friend/accept/:from",
     method: "PUT",
     fields: { from: "input" },
   },
   {
     name: "Reject Friend Request",
-    endpoint: "/api/f/reject/:from",
+    endpoint: "/api/friend/reject/:from",
     method: "PUT",
     fields: { from: "input" },
   },
   {
     name: "Delete Expired Friend",
-    endpoint: "/api/f/RemoveExpire",
+    endpoint: "/api/friend/RemoveExpire",
     method: "DELETE",
     fields: {},
   },
