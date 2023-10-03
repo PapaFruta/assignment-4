@@ -67,8 +67,6 @@ class Routes {
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
 
-    await ExpireFriend.removeExpiredFriend(u._id);
-
     WebSession.start(session, u._id);
     return { msg: "Logged in!" };
   }
@@ -115,6 +113,9 @@ class Routes {
   @Router.get("/friend")
   async getFriends(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
+
+    await ExpireFriend.removeExpiredFriend(user);
+
     return await User.idsToUsernames(await ExpireFriend.getFriends(user));
   }
 

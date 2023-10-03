@@ -81,3 +81,9 @@ Try to keep your route definitions as simple as possible.
 into a more user-friendly format for the front-end. For example, it would be better
 if your front-end receives `barish is not the author of this post` instead of
 `64e52a1f5ffc7d0d48a0569d is not the author of this post`.
+
+
+## How to test my concept:
+- You can add friend with duration as 100, then you can go to friend list, and you see them on there. Wait a minute or 2 and click on get friend again, they should disappear.
+- To authenticate yourself, just type it a random string, I have not implemented strict government id check.
+- Profile is created as user is created and can be updated when user is login
