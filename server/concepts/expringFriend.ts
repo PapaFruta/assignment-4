@@ -98,6 +98,20 @@ export default class ExpireFriendConcept {
     return {msg: `removed expired friend`} 
   }
 
+  async isFriend(user: ObjectId, friend: ObjectId){
+    const friendship = await this.friends.readOne({
+      $or: [
+        { user1: user, user2: friend },
+        { user1: friend, user2: user },
+      ],
+    });
+
+    if (friendship !== null || user.toString() === friend.toString()){
+      return true;
+    }
+    return false;
+  }
+
   private async addFriend(user1: ObjectId, user2: ObjectId, createdOn: number, duration: number) {
     void this.friends.createOne({ user1, user2, createdOn, duration});
   }

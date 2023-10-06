@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 
-import { Authentication, ExpireFriend, Post, Profile, User, WebSession } from "./app";
+import { Album, Authentication, ExpireFriend, Post, Profile, User, WebSession } from "./app";
+import { AlbumDoc } from "./concepts/album";
 import { PostDoc } from "./concepts/post";
 import { ProfileDoc } from "./concepts/profile";
 import { UserDoc } from "./concepts/user";
@@ -203,24 +204,39 @@ class Routes {
   }
 
   //create album
-  @Router.post("/chat/album/:title")
-  async createAlbum(session:WebSessionDoc, title: string, to: string, media: Array<string>){
-    throw Error('not implemented');
+  @Router.post("/chat/album")
+  async createAlbum(session:WebSessionDoc,to: string, title: string, photos:string){
+    const user = WebSession.getUser(session);
+    const friend = (await User.getUserByUsername(to))._id
+    //only allow to create album if they are friend
+    if(await ExpireFriend.isFriend(user,friend)){
+      const toUser = await User.getUserByUsername(to)
+      return await Album.createAlbum(user,toUser._id,title,photos)
+    }
+    throw Error('The users are not friend')
+    
   }
 
-  // @Router.update("/chat/album/:title")
-  // async updateAlbum(session:WebSessionDoc, title: string, to: string, update: Partial<AlbumDoc>){
-  //   throw Error('not implemented');
-  // }
-
-  @Router.get("/chat/album/:id")
-  async getAlbum(session:WebSessionDoc, id: string){
-    throw Error('not implemented');
+  @Router.patch("/chat/album/:_id")
+  async updateAlbum(session:WebSessionDoc,_id: ObjectId, update: Partial<AlbumDoc>){
+    const user = WebSession.getUser(session);
+    await Album.editPermission(user, _id);
+    return await Album.editAlbum(_id, update);;
   }
 
-  @Router.delete("/chat/album/:id")
-  async deleteAlbum(session:WebSessionDoc, id: string){
-    throw Error('not implemented');
+  @Router.get("/chat/album")
+  async getAlbum(session:WebSessionDoc, to: string){
+    const author = WebSession.getUser(session);
+    const friend =await User.getUserByUsername(to)
+    return await Album.getAlbums(( friend)._id);
+  }
+
+  @Router.delete("/chat/album/:_id")
+  async deleteAlbum(session:WebSessionDoc, _id: ObjectId){
+    const author = WebSession.getUser(session);
+    await Album.editPermission(author, _id);
+
+    return await Album.deleteAlbums(_id);
   }
 
   //hangout proposal

@@ -12,6 +12,30 @@ type operation = {
 
 const operations: operation[] = [
   {
+    name: "Create Album",
+    endpoint: "/api/chat/album",
+    method: "POST",
+    fields: {to:"input",title:"input",photos:"input"},
+  },
+  {
+    name: "Get Album",
+    endpoint: "/api/chat/album",
+    method: "GET",
+    fields: {to:"input"},
+  },
+  {
+    name: "Edit Album",
+    endpoint: "/api/chat/album/:_id",
+    method: "PATCH",
+    fields: {_id:"input", update: { title: "input", photos: "input"}},
+  },
+  {
+    name: "Delete Album",
+    endpoint: "/api/chat/album/:_id",
+    method: "DELETE",
+    fields: {_id:"input"},
+  },
+  {
     name: "Get Session User (logged in user)",
     endpoint: "/api/session",
     method: "GET",

@@ -69,6 +69,8 @@ export default class FriendConcept {
     return friendships.map((friendship) => (friendship.user1.toString() === user.toString() ? friendship.user2 : friendship.user1));
   }
 
+  
+
   private async addFriend(user1: ObjectId, user2: ObjectId) {
     void this.friends.createOne({ user1, user2 });
   }
@@ -92,6 +94,7 @@ export default class FriendConcept {
       throw new AlreadyFriendsError(u1, u2);
     }
   }
+
 
   private async canSendRequest(u1: ObjectId, u2: ObjectId) {
     await this.isNotFriends(u1, u2);
