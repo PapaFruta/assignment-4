@@ -1,5 +1,6 @@
 import AlbumConcept from "./concepts/album";
 import AuthenticationConcept from "./concepts/authentication";
+import ChatConcept from "./concepts/chat";
 import ExpireFriendConcept from "./concepts/expringFriend";
 import FriendConcept from "./concepts/friend";
 import PostConcept from "./concepts/post";
@@ -16,3 +17,4 @@ export const ExpireFriend = new ExpireFriendConcept();
 export const Authentication = new AuthenticationConcept();
 export const Profile = new ProfileConcept();
 export const Album = new AlbumConcept();
+export const Chat = new ChatConcept();

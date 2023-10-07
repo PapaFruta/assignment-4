@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { Album, Authentication, ExpireFriend, Post, Profile, User, WebSession } from "./app";
+import { Album, Authentication, Chat, ExpireFriend, Post, Profile, User, WebSession } from "./app";
 import { AlbumDoc } from "./concepts/album";
 import { PostDoc } from "./concepts/post";
 import { ProfileDoc } from "./concepts/profile";
@@ -194,13 +194,28 @@ class Routes {
   //send chat message
   @Router.post("/chat/")
   async startChat(session: WebSessionDoc, to: string, message: string){
-    throw Error('not implemented');
+    const user1 = WebSession.getUser(session);
+    const user2 = await User.getUserByUsername(to);
+
+    await ExpireFriend.isFriend(user1,user2._id);
+
+    return await Chat.startChat(user1,user2._id, message);
   }
 
   //get all message
   @Router.get("/chat/")
   async getChat(session: WebSessionDoc, to: string){
-    throw Error('not implemented');
+    const user1 = WebSession.getUser(session);
+    const user2 = await User.getUserByUsername(to);
+    return await Chat.getChat(user1,user2._id);
+  }
+
+  @Router.patch("/chat/")
+  async sendMessage(session:WebSessionDoc, to: string, message: string){
+    const user1 = WebSession.getUser(session);
+    const user2 = await User.getUserByUsername(to);
+
+    return await Chat.sendMessage(user1,user2._id,message)
   }
 
   //create album

@@ -48,10 +48,6 @@ export default class AlbumConcept{
         if (!album) {
             throw new NotFoundError(`album ${_id} does not exist!`);
         }
-        console.log('this is albums: ',album)
-        // if (album.from.toString() !== user.toString() && album.to.toString() !== user.toString()) {
-        // throw new NotAllowedError(user.toString(), _id);
-        // }
     }
 
 

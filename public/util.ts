@@ -12,6 +12,24 @@ type operation = {
 
 const operations: operation[] = [
   {
+    name: "Start Chat with Friend",
+    endpoint: "/api/chat",
+    method: "POST",
+    fields: {to:"input",message:"input"},
+  },
+  {
+    name: "Get Chat with Friend",
+    endpoint: "/api/chat",
+    method: "GET",
+    fields: {to:"input"},
+  },
+  {
+    name: "Send Message",
+    endpoint: "/api/chat",
+    method: "PATCH",
+    fields: {to:"input",message:"input"},
+  },
+  {
     name: "Create Album",
     endpoint: "/api/chat/album",
     method: "POST",
