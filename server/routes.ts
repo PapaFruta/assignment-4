@@ -1,7 +1,8 @@
 import { ObjectId } from "mongodb";
 
-import { Album, Authentication, Chat, ExpireFriend, Post, Profile, User, WebSession } from "./app";
+import { Album, Authentication, Chat, ExpireFriend, Hangout, Post, Profile, User, WebSession } from "./app";
 import { AlbumDoc } from "./concepts/album";
+import { HangoutDoc } from "./concepts/hangout";
 import { PostDoc } from "./concepts/post";
 import { ProfileDoc } from "./concepts/profile";
 import { UserDoc } from "./concepts/user";
@@ -197,10 +198,11 @@ class Routes {
     const user1 = WebSession.getUser(session);
     const user2 = await User.getUserByUsername(to);
 
-    await ExpireFriend.isFriend(user1,user2._id);
-
-    return await Chat.startChat(user1,user2._id, message);
-  }
+    if(await ExpireFriend.isFriend(user1,user2._id)){
+      return await Chat.startChat(user1,user2._id, message);
+    }
+    throw new Error('You two are not friend')
+  } 
 
   //get all message
   @Router.get("/chat/")
@@ -220,24 +222,37 @@ class Routes {
 
   //create album
   @Router.post("/chat/album")
-  async createAlbum(session:WebSessionDoc,to: string, title: string, photos:string){
+  async createAlbum(session:WebSessionDoc,to: string, title: string){
     const user = WebSession.getUser(session);
     const friend = (await User.getUserByUsername(to))._id
     //only allow to create album if they are friend
     if(await ExpireFriend.isFriend(user,friend)){
       const toUser = await User.getUserByUsername(to)
-      return await Album.createAlbum(user,toUser._id,title,photos)
+      return await Album.createAlbum(user,toUser._id,title)
     }
     throw Error('The users are not friend')
     
   }
 
-  @Router.patch("/chat/album/:_id")
-  async updateAlbum(session:WebSessionDoc,_id: ObjectId, update: Partial<AlbumDoc>){
+  @Router.patch("/chat/album/:id")
+  async editAlbum(session: WebSessionDoc, _id: ObjectId, update: Partial<AlbumDoc>){
     const user = WebSession.getUser(session);
-    await Album.editPermission(user, _id);
-    return await Album.editAlbum(_id, update);;
+
+    return await Album.editAlbum(_id, update);
   }
+  // @Router.patch("/chat/album/:_id/:title")
+  // async editTitle(session:WebSessionDoc,_id: ObjectId, title: string){
+  //   const user = WebSession.getUser(session);
+  //   await Album.editPermission(user, _id);
+  //   return await Album.editAlbumTitle(_id, title);;
+  // }
+
+  // @Router.patch("/chat/album/:_id/:photo")
+  // async addPhoto(session:WebSessionDoc,_id: ObjectId, photo: string){
+  //   const user = WebSession.getUser(session);
+  //   await Album.editPermission(user, _id);
+  //   return await Album.addPhoto(_id, photo);;
+  // }
 
   @Router.get("/chat/album")
   async getAlbum(session:WebSessionDoc, to: string){
@@ -249,30 +264,49 @@ class Routes {
   @Router.delete("/chat/album/:_id")
   async deleteAlbum(session:WebSessionDoc, _id: ObjectId){
     const author = WebSession.getUser(session);
-    await Album.editPermission(author, _id);
+    // await Album.editPermission(author, _id);
 
     return await Album.deleteAlbums(_id);
   }
 
   //hangout proposal
   @Router.post("/hangout")
-  async proposeHangout(session:WebSessionDoc, activity: string, location: string, time: number){
-    throw Error('not implemented');
+  async proposeHangout(session:WebSessionDoc, date: string, activity: string, location: string){
+    const author = WebSession.getUser(session);
+
+    return await Hangout.createHangout(author, date , activity, location);
   }
 
-  @Router.get("/hangout/:id")
-  async getHangout(session:WebSessionDoc, id: string){
-    throw Error('not implemented');
+  @Router.get("/hangout")
+  async getHangout(session:WebSessionDoc, user: ObjectId){
+    const author = WebSession.getUser(session);
+
+    return await Hangout.getHangout(user);
   }
   
-  // @Router.patch("/hangout/:id")
-  // async suggestEdit(session:WebSessionDoc, id: string, update: Partial<HangoutDoc>){
-  //   throw Error('not implemented');
-  // }
+  @Router.patch("/hangout/:id/accept")
+  async acceptHangout(session:WebSessionDoc, id:ObjectId){
+    const author = WebSession.getUser(session);
+
+    return await Hangout.acceptHangout(id,author);
+  }
+
+  @Router.patch("/hangout/:id/sgguest")
+  async suggestEdit(session:WebSessionDoc, id:ObjectId, suggestor: ObjectId, update: Partial<HangoutDoc>){
+    const author = WebSession.getUser(session);
+
+    if(await ExpireFriend.isFriend(author, suggestor)){
+      return await Hangout.suggestEdit(id,suggestor,update);
+    }
+
+    throw new Error("You two are not friend")
+  }
 
   @Router.delete("/hangout/:id")
-  async deleteHangout(session:WebSessionDoc, id: string){
-    throw Error('not implemented');
+  async deleteHangout(session:WebSessionDoc, id: ObjectId){
+    const author = WebSession.getUser(session);
+
+    return await Hangout.deleteHangout(id);
   }
 }
 

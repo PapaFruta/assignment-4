@@ -1,5 +1,5 @@
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-type InputTag = "input" | "textarea";
+type InputTag = "input" | "textarea" | "json";
 type Field = InputTag | { [key: string]: Field };
 type Fields = Record<string, Field>;
 
@@ -11,6 +11,24 @@ type operation = {
 };
 
 const operations: operation[] = [
+  {
+    name: "Create a proposal",
+    endpoint: "/api/hangout",
+    method: "POST",
+    fields: {date: "input", activity: "input", location: "input"},
+  },
+  {
+    name: "Get proposal",
+    endpoint: "/api/hangout",
+    method: "GET",
+    fields: {user:"input"},
+  },
+  {
+    name: "Accept Proposal",
+    endpoint: "/api/hangout/:id/accept",
+    method: "PATCH",
+    fields: {id:"input"},
+  },
   {
     name: "Start Chat with Friend",
     endpoint: "/api/chat",
@@ -33,7 +51,7 @@ const operations: operation[] = [
     name: "Create Album",
     endpoint: "/api/chat/album",
     method: "POST",
-    fields: {to:"input",title:"input",photos:"input"},
+    fields: {to:"input",title:"input"},
   },
   {
     name: "Get Album",
@@ -45,7 +63,7 @@ const operations: operation[] = [
     name: "Edit Album",
     endpoint: "/api/chat/album/:_id",
     method: "PATCH",
-    fields: {_id:"input", update: { title: "input", photos: "input"}},
+    fields: {_id:"input", update:{title:"input", photos: "json"}},
   },
   {
     name: "Delete Album",
@@ -229,20 +247,19 @@ async function request(method: HttpMethod, endpoint: string, params?: unknown) {
     };
   }
 }
-
 function fieldsToHtml(fields: Record<string, Field>, indent = 0, prefix = ""): string {
   return Object.entries(fields)
     .map(([name, tag]) => {
+      const htmlTag = tag === "json" ? "textarea" : tag;
       return `
         <div class="field" style="margin-left: ${indent}px">
           <label>${name}:
-          ${typeof tag === "string" ? `<${tag} name="${prefix}${name}"></${tag}>` : fieldsToHtml(tag, indent + 10, prefix + name + ".")}
+          ${typeof tag === "string" ? `<${htmlTag} name="${prefix}${name}"></${htmlTag}>` : fieldsToHtml(tag, indent + 10, prefix + name + ".")}
           </label>
         </div>`;
     })
     .join("");
 }
-
 function getHtmlOperations() {
   return operations.map((operation) => {
     return `<li class="operation">
@@ -288,6 +305,16 @@ async function submitEventHandler(e: Event) {
     delete reqData[key];
     return param;
   });
+
+  const op = operations.find((op) => op.endpoint === endpoint && op.method === $method);
+  for (const [key, val] of Object.entries(reqData)) {
+    if (op?.fields[key] === "json") {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const type = key.split(".").reduce((obj, key) => obj[key], op?.fields as any);
+    if (type === "json") {
+      reqData[key] = JSON.parse(val as string);
+    }
+  }}
 
   const data = prefixedRecordIntoObject(reqData as Record<string, string>);
 
