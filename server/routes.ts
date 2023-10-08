@@ -311,4 +311,3 @@ class Routes {
 }
 
 export default getExpressRouter(new Routes());
-;
