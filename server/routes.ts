@@ -260,14 +260,14 @@ class Routes {
   @Router.post("/hangout")
   async proposeHangout(session:WebSessionDoc, date: string, activity: string, location: string){
     const author = WebSession.getUser(session);
-
+    
     return await Hangout.createHangout(author, date , activity, location);
   }
 
   @Router.get("/hangout")
   async getHangout(session:WebSessionDoc, user: ObjectId){
     const author = WebSession.getUser(session);
-
+    user = new ObjectId(user)
     return await Hangout.getHangout(user);
   }
   
