@@ -23,11 +23,15 @@ export default class HangoutConcept{
   }
 
   async getHangout(user: ObjectId){
-    return {hangout: await this.hangouts.readMany({user})}
+    const hang = await this.hangouts.readMany({$or: [ 
+      { author: user }, // either the author is user
+      { acceptee: { $elemMatch: { $eq: user } } } // or acceptee has user
+    ]})
+    return {hangout: hang}
   }
 
-  async deleteHangout(id:ObjectId){
-    await this.hangouts.deleteOne({id})
+  async deleteHangout(_id:ObjectId){
+    await this.hangouts.deleteOne({_id})
     return {msg: "Hangout deleted successfully"}
   }
 
@@ -46,19 +50,23 @@ export default class HangoutConcept{
 
     throw new Error('this hangout does not exist')
   }
+  
+  async getAuthor(_id:ObjectId){
+    return (await this.hangouts.readOne({_id}))?.author;
+  }
 
-  async suggestEdit(id:ObjectId, suggestor: ObjectId, update: Partial<HangoutDoc>){
-    const hangout = await this.hangouts.readOne({id})
+  async suggestEdit(_id:ObjectId, suggestor: ObjectId, update: Partial<HangoutDoc>){
+    const hangout = await this.hangouts.readOne({_id})
 
     if(hangout){
       if(suggestor == hangout.author){
-        await this.hangouts.updateOne({id},update)
+        await this.hangouts.updateOne({_id},update)
         return {msg: "Edit made successfully"};
       }
 
       hangout.suggestion.push([suggestor,update]);
-      await this.hangouts.updateOne({id},hangout)
-      return {msg:"Your suggestion had been recorded"}
+      await this.hangouts.updateOne({_id},hangout)
+      return {msg:"Your suggestion had been recorded", hangout: await this.hangouts.readOne({_id})}
     }
   }
 

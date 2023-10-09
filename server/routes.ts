@@ -234,25 +234,12 @@ class Routes {
     
   }
 
-  @Router.patch("/chat/album/:id")
+  @Router.patch("/chat/album/:_id")
   async editAlbum(session: WebSessionDoc, _id: ObjectId, update: Partial<AlbumDoc>){
     const user = WebSession.getUser(session);
 
     return await Album.editAlbum(_id, update);
   }
-  // @Router.patch("/chat/album/:_id/:title")
-  // async editTitle(session:WebSessionDoc,_id: ObjectId, title: string){
-  //   const user = WebSession.getUser(session);
-  //   await Album.editPermission(user, _id);
-  //   return await Album.editAlbumTitle(_id, title);;
-  // }
-
-  // @Router.patch("/chat/album/:_id/:photo")
-  // async addPhoto(session:WebSessionDoc,_id: ObjectId, photo: string){
-  //   const user = WebSession.getUser(session);
-  //   await Album.editPermission(user, _id);
-  //   return await Album.addPhoto(_id, photo);;
-  // }
 
   @Router.get("/chat/album")
   async getAlbum(session:WebSessionDoc, to: string){
@@ -291,18 +278,22 @@ class Routes {
     return await Hangout.acceptHangout(id,author);
   }
 
-  @Router.patch("/hangout/:id/sgguest")
-  async suggestEdit(session:WebSessionDoc, id:ObjectId, suggestor: ObjectId, update: Partial<HangoutDoc>){
-    const author = WebSession.getUser(session);
+  @Router.patch("/hangout/:id/suggest")
+  async suggestEdit(session:WebSessionDoc, id:ObjectId, update: Partial<HangoutDoc>){
+    const suggestor = WebSession.getUser(session);
 
-    if(await ExpireFriend.isFriend(author, suggestor)){
-      return await Hangout.suggestEdit(id,suggestor,update);
+    const author = await Hangout.getAuthor(id)
+
+    if (author){
+      if(await ExpireFriend.isFriend(author,suggestor)){
+        return await Hangout.suggestEdit(id,suggestor,update);
+      }
     }
-
-    throw new Error("You two are not friend")
+    
+    throw new Error("Invalid")
   }
 
-  @Router.delete("/hangout/:id")
+  @Router.delete("/hangout")
   async deleteHangout(session:WebSessionDoc, id: ObjectId){
     const author = WebSession.getUser(session);
 

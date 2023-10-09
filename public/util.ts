@@ -30,6 +30,18 @@ const operations: operation[] = [
     fields: {id:"input"},
   },
   {
+    name: "Suggest Edit to Proposal",
+    endpoint: "/api/hangout/:id/suggest",
+    method: "PATCH",
+    fields: {id:"input",update:{date: "input", activity: "input", location: "input"}},
+  },
+  {
+    name: "Delete Proposal",
+    endpoint: "/api/hangout",
+    method: "DELETE",
+    fields: {id:"input"},
+  },
+  {
     name: "Start Chat with Friend",
     endpoint: "/api/chat",
     method: "POST",
