@@ -12,12 +12,14 @@ import Responses from "./responses";
 
 
 class Routes {
+  //----------Session-----------
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     return await User.getUserById(user);
   }
 
+  //------------User-----------
   @Router.get("/users")
   async getUsers() {
     return await User.getUsers();
@@ -79,6 +81,7 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
+  //--------- Post --------------
   @Router.get("/posts")
   async getPosts(author?: string) {
     let posts;
@@ -112,6 +115,12 @@ class Routes {
     return Post.delete(_id);
   }
 
+  //---------- friends -----------
+
+  /**
+   * 
+   * sync get friend with updating friend list to remove expired friend
+   */
   @Router.get("/friend")
   async getFriends(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
@@ -168,6 +177,8 @@ class Routes {
     return await ExpireFriend.removeExpiredFriend(user);
   }
 
+  // ------------ authentication -----------
+
   @Router.get("/isVertify")
   async isVertify(session: WebSessionDoc){
     const user = WebSession.getUser(session);
@@ -179,6 +190,8 @@ class Routes {
     const user = WebSession.getUser(session);
     return await Authentication.vertify(user,id);
   }
+
+  //------------ Profile --------------
 
   @Router.get("/profile")
   async getProfile(session: WebSessionDoc){
@@ -192,7 +205,8 @@ class Routes {
     return await Profile.update(user, update);
   }
 
-  //send chat message
+  //--------------- Chat -------------
+
   @Router.post("/chat/")
   async startChat(session: WebSessionDoc, to: string, message: string){
     const user1 = WebSession.getUser(session);
@@ -219,6 +233,8 @@ class Routes {
 
     return await Chat.sendMessage(user1,user2._id,message)
   }
+
+  //--------------- Album ------------------
 
   //create album
   @Router.post("/chat/album")
@@ -256,7 +272,8 @@ class Routes {
     return await Album.deleteAlbums(_id);
   }
 
-  //hangout proposal
+  //------------ Hangout Proposal ----------
+  
   @Router.post("/hangout")
   async proposeHangout(session:WebSessionDoc, date: string, activity: string, location: string){
     const author = WebSession.getUser(session);
