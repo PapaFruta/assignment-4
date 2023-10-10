@@ -18,8 +18,14 @@ const operations: operation[] = [
     fields: {date: "input", activity: "input", location: "input"},
   },
   {
-    name: "Get proposal",
-    endpoint: "/api/hangout",
+    name: "Get proposal created",
+    endpoint: "/api/hangout/created",
+    method: "GET",
+    fields: {user:"input"},
+  },
+  {
+    name: "Get proposal accepted",
+    endpoint: "/api/hangout/accepted",
     method: "GET",
     fields: {user:"input"},
   },
@@ -32,6 +38,30 @@ const operations: operation[] = [
   {
     name: "Suggest Edit to Proposal",
     endpoint: "/api/hangout/:id/suggest",
+    method: "PATCH",
+    fields: {id:"input",update:{date: "input", activity: "input", location: "input"}},
+  },
+  {
+    name: "Clear all Suggestion",
+    endpoint: "/api/hangout/:id/clear",
+    method: "PATCH",
+    fields: {id:"input"},
+  },
+  {
+    name: "Accept Suggestion",
+    endpoint: "/api/hangout/:id/acceptSuggestion",
+    method: "PATCH",
+    fields: {id:"input",index:"input"},
+  },
+  {
+    name: "Decline Suggestion",
+    endpoint: "/api/hangout/:id/declineSuggestion",
+    method: "PATCH",
+    fields: {id:"input",index:"input"},
+  },
+  {
+    name: "Edit Porposal",
+    endpoint: "/api/hangout/:id/edit",
     method: "PATCH",
     fields: {id:"input",update:{date: "input", activity: "input", location: "input"}},
   },

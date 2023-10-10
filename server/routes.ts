@@ -182,13 +182,13 @@ class Routes {
   @Router.get("/isVertify")
   async isVertify(session: WebSessionDoc){
     const user = WebSession.getUser(session);
-    return await Authentication.isVertify(user);
+    return await Authentication.isVerified(user);
   }
 
   @Router.post("/vertify/:id")
   async vertify(session:WebSessionDoc, id: string){
     const user = WebSession.getUser(session);
-    return await Authentication.vertify(user,id);
+    return await Authentication.verify(user,id);
   }
 
   //------------ Profile --------------
@@ -231,7 +231,10 @@ class Routes {
     const user1 = WebSession.getUser(session);
     const user2 = await User.getUserByUsername(to);
 
-    return await Chat.sendMessage(user1,user2._id,message)
+    if(await ExpireFriend.isFriend(user1,user2._id)){
+      return await Chat.sendMessage(user1,user2._id,message)
+    }
+    return {msg: `You cannot send message to ${to} because you two are not friend, please send them a friend request first!`}
   }
 
   //--------------- Album ------------------
@@ -273,7 +276,7 @@ class Routes {
   }
 
   //------------ Hangout Proposal ----------
-  
+
   @Router.post("/hangout")
   async proposeHangout(session:WebSessionDoc, date: string, activity: string, location: string){
     const author = WebSession.getUser(session);
@@ -281,11 +284,19 @@ class Routes {
     return await Hangout.createHangout(author, date , activity, location);
   }
 
-  @Router.get("/hangout")
-  async getHangout(session:WebSessionDoc, user: ObjectId){
+  @Router.get("/hangout/created")
+  async getHangoutCreated(session:WebSessionDoc, user: ObjectId){
     const author = WebSession.getUser(session);
     user = new ObjectId(user)
-    return await Hangout.getHangout(user);
+    return await Hangout.getHangoutCreated(user);
+  }
+
+  @Router.get("/hangout/accepted")
+  async getHangoutAccepted(session:WebSessionDoc, user: ObjectId){
+    const author = WebSession.getUser(session);
+    user = new ObjectId(user)
+
+    return await Hangout.getHangoutAccepted(user);
   }
   
   @Router.patch("/hangout/:id/accept")
@@ -303,11 +314,42 @@ class Routes {
 
     if (author){
       if(await ExpireFriend.isFriend(author,suggestor)){
-        return await Hangout.suggestEdit(id,suggestor,update);
+        return await Hangout.suggestHangoutEdit(id,suggestor,update);
       }
     }
     
-    throw new Error("Invalid")
+    return {msg: `You cannot suggest edit to ${author}'s hangout proposal because you two are not friend, please send them a friend request first!`}
+  }
+
+  @Router.patch("/hangout/:id/edit")
+  async editHangout(session:WebSessionDoc, id:ObjectId, update: Partial<HangoutDoc>){
+    const editor = WebSession.getUser(session);
+
+    return await Hangout.editHangout(id,editor,update);
+
+  }
+
+  @Router.patch("/hangout/:id/clear")
+  async clearSuggestion(session:WebSessionDoc, id:ObjectId){
+    const caller = WebSession.getUser(session);
+
+    return await Hangout.clearSuggestions(id,caller);
+  }
+
+  @Router.patch("/hangout/:id/acceptSuggestion")
+  async acceptSuggestion(session:WebSessionDoc, id:ObjectId, index: string){
+    const caller = WebSession.getUser(session);
+    const suggestionIndex = parseInt(index)
+
+    return await Hangout.acceptSuggestion(id,caller,suggestionIndex);
+  }
+
+  @Router.patch("/hangout/:id/declineSuggestion")
+  async declineSuggestion(session:WebSessionDoc, id:ObjectId, index: string){
+    const caller = WebSession.getUser(session);
+    const suggestionIndex = parseInt(index)
+
+    return await Hangout.declineSuggestion(id,caller,suggestionIndex);
   }
 
   @Router.delete("/hangout")
