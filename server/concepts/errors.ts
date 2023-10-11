@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { FormattableError } from "../framework/router";
 
 /**
@@ -39,4 +40,41 @@ export class NotFoundError extends FormattableError {
  */
 export class DuplicateError extends FormattableError {
   public readonly HTTP_CODE = 405;
+}
+
+
+export class FriendRequestNotFoundError extends NotFoundError {
+  constructor(
+    public readonly from: ObjectId,
+    public readonly to: ObjectId,
+  ) {
+    super("Friend request from {0} to {1} does not exist!", from, to);
+  }
+}
+
+export class FriendRequestAlreadyExistsError extends NotAllowedError {
+  constructor(
+    public readonly from: ObjectId,
+    public readonly to: ObjectId,
+  ) {
+    super("Friend request between {0} and {1} already exists!", from, to);
+  }
+}
+
+export class FriendNotFoundError extends NotFoundError {
+  constructor(
+    public readonly user1: ObjectId,
+    public readonly user2: ObjectId,
+  ) {
+    super("Friendship between {0} and {1} does not exist!", user1, user2);
+  }
+}
+
+export class AlreadyFriendsError extends NotAllowedError {
+  constructor(
+    public readonly user1: ObjectId,
+    public readonly user2: ObjectId,
+  ) {
+    super("{0} and {1} are already friends!", user1, user2);
+  }
 }

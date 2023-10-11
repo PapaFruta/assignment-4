@@ -12,6 +12,54 @@ type operation = {
 
 const operations: operation[] = [
   {
+    name: "Request Friend",
+    endpoint: "/api/friend/request/",
+    method: "POST",
+    fields: { to: "input", duration: "input" },
+  },
+  {
+    name: "Friend Requests Inbox",
+    endpoint: "api/friend/requests",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Friend List",
+    endpoint: "api/friend",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Delete Friend",
+    endpoint: "/api/friend/remove/:friend",
+    method: "DELETE",
+    fields: { friend: "input" },
+  },
+  {
+    name: "Delete Pending Friend Request",
+    endpoint: "/api/friend/requests/:to",
+    method: "DELETE",
+    fields: { to: "input" },
+  },
+  {
+    name: "Accept Friend Request",
+    endpoint: "/api/friend/accept/:from",
+    method: "PUT",
+    fields: { from: "input" },
+  },
+  {
+    name: "Reject Friend Request",
+    endpoint: "/api/friend/reject/:from",
+    method: "PUT",
+    fields: { from: "input" },
+  },
+  {
+    name: "Delete Expired Friend",
+    endpoint: "/api/friend/RemoveExpire",
+    method: "DELETE",
+    fields: {},
+  },
+  {
     name: "Create a proposal",
     endpoint: "/api/hangout",
     method: "POST",
@@ -165,67 +213,13 @@ const operations: operation[] = [
     name: "Create Post",
     endpoint: "/api/posts",
     method: "POST",
-    fields: { photos: "input" , caption: "input"},
-  },
-  {
-    name: "Update Post",
-    endpoint: "/api/posts/:id",
-    method: "PATCH",
-    fields: { id: "input", update: { content: "input", options: { backgroundColor: "input" } } },
+    fields: { photos: "json" , caption: "input"},
   },
   {
     name: "Delete Post",
     endpoint: "/api/posts/:id",
     method: "DELETE",
     fields: { id: "input" },
-  },
-  {
-    name: "Request Friend",
-    endpoint: "/api/friend/request/",
-    method: "POST",
-    fields: { to: "input", duration: "input" },
-  },
-  {
-    name: "Friend Requests Inbox",
-    endpoint: "api/friend/requests",
-    method: "GET",
-    fields: {},
-  },
-  {
-    name: "Friend List",
-    endpoint: "api/friend",
-    method: "GET",
-    fields: {},
-  },
-  {
-    name: "Delete Friend",
-    endpoint: "/api/friend/remove/:friend",
-    method: "DELETE",
-    fields: { friend: "input" },
-  },
-  {
-    name: "Delete Friend Request",
-    endpoint: "/api/friend/requests/:to",
-    method: "DELETE",
-    fields: { to: "input" },
-  },
-  {
-    name: "Accept Friend Request",
-    endpoint: "/api/friend/accept/:from",
-    method: "PUT",
-    fields: { from: "input" },
-  },
-  {
-    name: "Reject Friend Request",
-    endpoint: "/api/friend/reject/:from",
-    method: "PUT",
-    fields: { from: "input" },
-  },
-  {
-    name: "Delete Expired Friend",
-    endpoint: "/api/friend/RemoveExpire",
-    method: "DELETE",
-    fields: {},
   },
   {
     name: "Check Authentication Status",

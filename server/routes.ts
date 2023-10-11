@@ -3,7 +3,6 @@ import { ObjectId } from "mongodb";
 import { Album, Authentication, Chat, ExpireFriend, Hangout, Post, Profile, User, WebSession } from "./app";
 import { AlbumDoc } from "./concepts/album";
 import { HangoutDoc } from "./concepts/hangout";
-import { PostDoc } from "./concepts/post";
 import { ProfileDoc } from "./concepts/profile";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -34,7 +33,7 @@ class Routes {
    * 
    * sync create user
    * when create user:
-   * intialize user's authentication status
+   * intialize user's authentication status - invalid auth
    * initialize user's profile
    * 
    */
@@ -64,13 +63,12 @@ class Routes {
   /**
    * 
    * Sync login and auto-removing expiring friend
-   * 
-   * 
    */
   @Router.post("/login")
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
 
+    await ExpireFriend.removeExpiredFriend(u._id);
     WebSession.start(session, u._id);
     return { msg: "Logged in!" };
   }
@@ -95,17 +93,10 @@ class Routes {
   }
 
   @Router.post("/posts")
-  async createPost(session: WebSessionDoc, photos: string, caption?: string) {
+  async createPost(session: WebSessionDoc, photos: Array<string>, caption?: string) {
     const user = WebSession.getUser(session);
     const created = await Post.create(user, photos, caption);
     return { msg: created.msg, post: await Responses.post(created.post) };
-  }
-
-  @Router.patch("/posts/:_id")
-  async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<PostDoc>) {
-    const user = WebSession.getUser(session);
-    await Post.isAuthor(user, _id);
-    return await Post.update(_id, update);
   }
 
   @Router.delete("/posts/:_id")
@@ -127,7 +118,7 @@ class Routes {
 
     await ExpireFriend.removeExpiredFriend(user);
 
-    return await User.idsToUsernames(await ExpireFriend.getFriends(user));
+    return await ExpireFriend.getFriends(user);
   }
 
   @Router.delete("/friend/remove/:friend")

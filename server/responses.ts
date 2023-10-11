@@ -1,5 +1,5 @@
 import { User } from "./app";
-import { ExpireFriendRequestDoc } from "./concepts/expringFriend";
+import { ExpireFriendRequestDoc } from "./concepts/expiringFriend";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/post";
 import { Router } from "./framework/router";
