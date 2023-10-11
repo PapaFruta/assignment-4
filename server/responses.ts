@@ -1,6 +1,6 @@
 import { User } from "./app";
+import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestNotFoundError } from "./concepts/errors";
 import { ExpireFriendRequestDoc } from "./concepts/expiringFriend";
-import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
 import { PostAuthorNotMatchError, PostDoc } from "./concepts/post";
 import { Router } from "./framework/router";
 
@@ -26,17 +26,6 @@ export default class Responses {
   static async posts(posts: PostDoc[]) {
     const authors = await User.idsToUsernames(posts.map((post) => post.author));
     return posts.map((post, i) => ({ ...post, author: authors[i] }));
-  }
-
-  /**
-   * Convert FriendRequestDoc into more readable format for the frontend
-   * by converting the ids into usernames.
-   */
-  static async friendRequests(requests: FriendRequestDoc[]) {
-    const from = requests.map((request) => request.from);
-    const to = requests.map((request) => request.to);
-    const usernames = await User.idsToUsernames(from.concat(to));
-    return requests.map((request, i) => ({ ...request, from: usernames[i], to: usernames[i + requests.length] }));
   }
 
   static async expringFriendRequests(requests: ExpireFriendRequestDoc[]) {
