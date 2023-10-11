@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { Album, Authentication, Chat, ExpireFriend, Hangout, Post, Profile, User, WebSession } from "./app";
+import { Album, Chat, ExpireFriend, Hangout, Post, Profile, User, WebSession } from "./app";
 import { AlbumDoc } from "./concepts/album";
 import { HangoutDoc } from "./concepts/hangout";
 import { ProfileDoc } from "./concepts/profile";
@@ -42,7 +42,6 @@ class Routes {
     WebSession.isLoggedOut(session);
     const user = await User.create(username, password);
     const id = await User.getUserByUsername(username);
-    await Authentication.create(id._id);
     await Profile.create(id._id,profilePic,first,last);
     return user
   }
@@ -170,13 +169,13 @@ class Routes {
 
   // ------------ authentication -----------
 
-  @Router.get("/isVertify")
+  @Router.get("/vertify")
   async isVertify(session: WebSessionDoc){
     const user = WebSession.getUser(session);
     return await User.isVerified(user);
   }
 
-  @Router.post("/vertify/:id")
+  @Router.patch("/vertify/:id")
   async vertify(session:WebSessionDoc, id: string){
     const user = WebSession.getUser(session);
     return await User.verify(user,id);

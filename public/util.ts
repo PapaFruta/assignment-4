@@ -223,14 +223,14 @@ const operations: operation[] = [
   },
   {
     name: "Check Authentication Status",
-    endpoint: "/api/isVertify",
+    endpoint: "/api/vertify",
     method: "GET",
     fields: {},
   },
   {
     name: "Vertify with government ID",
     endpoint: "/api/vertify/:id",
-    method: "POST",
+    method: "PATCH",
     fields: {id:"input"},
   },
   {

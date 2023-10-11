@@ -1,5 +1,4 @@
 import AlbumConcept from "./concepts/album";
-import AuthenticationConcept from "./concepts/authentication";
 import ChatConcept from "./concepts/chat";
 import ExpireFriendConcept from "./concepts/expiringFriend";
 import HangoutConcept from "./concepts/hangout";
@@ -13,7 +12,6 @@ export const WebSession = new WebSessionConcept();
 export const User = new UserConcept();
 export const Post = new PostConcept();
 export const ExpireFriend = new ExpireFriendConcept();
-export const Authentication = new AuthenticationConcept();
 export const Profile = new ProfileConcept();
 export const Album = new AlbumConcept();
 export const Chat = new ChatConcept();
