@@ -31,10 +31,8 @@ class Routes {
 
   /**
    * 
-   * sync create user
-   * when create user:
-   * intialize user's authentication status - invalid auth
-   * initialize user's profile
+   * sync create user with create user profile
+   * when create user, also initialize user's profile
    * 
    */
   @Router.post("/users")
@@ -78,6 +76,20 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
+  // ------------ authentication -----------
+
+  @Router.get("/vertify")
+  async isVertify(session: WebSessionDoc){
+    const user = WebSession.getUser(session);
+    return await User.isVerified(user);
+  }
+
+  @Router.patch("/vertify/:id")
+  async vertify(session:WebSessionDoc, id: string){
+    const user = WebSession.getUser(session);
+    return await User.verify(user,id);
+  }
+
   //--------- Post --------------
   @Router.get("/posts")
   async getPosts(author?: string) {
@@ -98,11 +110,11 @@ class Routes {
     return { msg: created.msg, post: await Responses.post(created.post) };
   }
 
-  @Router.delete("/posts/:_id")
-  async deletePost(session: WebSessionDoc, _id: ObjectId) {
+  @Router.delete("/posts")
+  async deletePost(session: WebSessionDoc, id: ObjectId) {
     const user = WebSession.getUser(session);
-    await Post.isAuthor(user, _id);
-    return Post.delete(_id);
+    await Post.isAuthor(user, id);
+    return Post.delete(id);
   }
 
   //---------- friends -----------
@@ -165,20 +177,6 @@ class Routes {
   async removeExpiredFriend(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     return await ExpireFriend.removeExpiredFriend(user);
-  }
-
-  // ------------ authentication -----------
-
-  @Router.get("/vertify")
-  async isVertify(session: WebSessionDoc){
-    const user = WebSession.getUser(session);
-    return await User.isVerified(user);
-  }
-
-  @Router.patch("/vertify/:id")
-  async vertify(session:WebSessionDoc, id: string){
-    const user = WebSession.getUser(session);
-    return await User.verify(user,id);
   }
 
   //------------ Profile --------------
@@ -345,8 +343,8 @@ class Routes {
   @Router.delete("/hangout")
   async deleteHangout(session:WebSessionDoc, id: ObjectId){
     const author = WebSession.getUser(session);
-
-    return await Hangout.deleteHangout(id);
+    // Hangout.getAuthor(id)
+    return await Hangout.deleteHangout(author, id);
   }
 }
 

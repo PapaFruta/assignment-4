@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError } from "./errors";
+import { NotAllowedError, NotFoundError } from "./errors";
 
 // Define the structure for the Hangout document in MongoDB.
 export interface HangoutDoc extends BaseDoc {
@@ -59,7 +59,17 @@ export default class HangoutConcept {
    * @param _id - ObjectId of the hangout to delete.
    * @returns A message indicating successful deletion.
    */
-  async deleteHangout(_id: ObjectId) {
+  async deleteHangout(author: ObjectId, _id: ObjectId) {
+    const hangout = await this.hangouts.readOne({ _id}); 
+
+    if (hangout && (author.toHexString() !== hangout.author.toHexString())) {
+      return new NotAllowedError('You are not the author of this hangout!');
+    }
+
+    if(! hangout){
+      return new NotFoundError("This hangout does not exist!");
+    }
+
     await this.hangouts.deleteOne({ _id });
     return { msg: "Hangout deleted successfully" };
   }
@@ -80,7 +90,7 @@ export default class HangoutConcept {
       }
 
       if (await this.hangouts.readOne({ _id, acceptee:{$in:[acceptee]} })){
-        return {msg: "You have already said yes to this hangout"}
+        return new NotAllowedError("You have already said yes to this hangout");
       }
 
       hangout.acceptee.push(acceptee);
@@ -88,7 +98,7 @@ export default class HangoutConcept {
       return { msg: "You have accepted hangout" };
     }
 
-    throw new Error('This hangout does not exist');
+    return new NotFoundError("This hangout does not exist!");
   }
 
   /**
@@ -112,7 +122,7 @@ export default class HangoutConcept {
     const hangout = await this.hangouts.readOne({ _id });
 
     if (!hangout) {
-        throw new Error('This hangout does not exist');
+      return new NotFoundError("This hangout does not exist!");
     }
 
     const validity = this.validateInputs(update,false);
@@ -143,7 +153,7 @@ export default class HangoutConcept {
     const hangout = await this.hangouts.readOne({ _id });
 
     if (!hangout) {
-        throw new Error('This hangout does not exist');
+      return new NotFoundError("This hangout does not exist!");
     }
 
     const validity = this.validateInputs(update,false);
@@ -168,7 +178,7 @@ export default class HangoutConcept {
     const hangout = await this.hangouts.readOne({ _id });
 
     if (!hangout) {
-      throw new Error('This hangout does not exist');
+      return new NotFoundError("This hangout does not exist!");
     }
 
     // Ensure only the author can edit the hangout
@@ -190,7 +200,7 @@ export default class HangoutConcept {
       return { msg: "Suggestion accepted and hangout updated successfully", hangout: await this.hangouts.readOne({_id})};
     }
 
-    throw new Error('Invalid suggestion index provided');
+    throw new NotAllowedError('Invalid suggestion index provided');
   }
 
   /**
@@ -203,7 +213,7 @@ export default class HangoutConcept {
     const hangout = await this.hangouts.readOne({ _id });
 
     if (!hangout) {
-      throw new Error('This hangout does not exist');
+      throw new NotFoundError('This hangout does not exist');
     }
 
     // Ensure only the author can edit the hangout
@@ -220,7 +230,7 @@ export default class HangoutConcept {
       return { msg: "Suggestion removed and hangout updated successfully", hangout: await this.hangouts.readOne({_id})};
     }
 
-    throw new Error('Invalid suggestion index provided');
+    throw new NotAllowedError('Invalid suggestion index provided');
   }
 
   /**
@@ -232,7 +242,7 @@ export default class HangoutConcept {
     const hangout = await this.hangouts.readOne({ _id });
 
     if (!hangout) {
-      throw new Error('This hangout does not exist');
+      throw new NotFoundError('This hangout does not exist');
     }
 
     // Ensure only the author can edit the hangout

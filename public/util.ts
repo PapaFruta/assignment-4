@@ -217,7 +217,7 @@ const operations: operation[] = [
   },
   {
     name: "Delete Post",
-    endpoint: "/api/posts/:id",
+    endpoint: "/api/posts",
     method: "DELETE",
     fields: { id: "input" },
   },
