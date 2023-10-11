@@ -173,13 +173,13 @@ class Routes {
   @Router.get("/isVertify")
   async isVertify(session: WebSessionDoc){
     const user = WebSession.getUser(session);
-    return await Authentication.isVerified(user);
+    return await User.isVerified(user);
   }
 
   @Router.post("/vertify/:id")
   async vertify(session:WebSessionDoc, id: string){
     const user = WebSession.getUser(session);
-    return await Authentication.verify(user,id);
+    return await User.verify(user,id);
   }
 
   //------------ Profile --------------
