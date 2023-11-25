@@ -4,6 +4,7 @@ import ExpireFriendConcept from "./concepts/expiringFriend";
 import HangoutConcept from "./concepts/hangout";
 import PostConcept from "./concepts/post";
 import ProfileConcept from "./concepts/profile";
+import TagConcept from "./concepts/tag";
 import UserConcept from "./concepts/user";
 import WebSessionConcept from "./concepts/websession";
 
@@ -16,3 +17,4 @@ export const Profile = new ProfileConcept();
 export const Album = new AlbumConcept();
 export const Chat = new ChatConcept();
 export const Hangout = new HangoutConcept();
+export const Tag = new TagConcept();

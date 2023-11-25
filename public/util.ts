@@ -11,6 +11,39 @@ type operation = {
 };
 
 const operations: operation[] = [
+    {
+      name: "Create Tag",
+      endpoint: "/api/tag",
+      method: "POST",
+      fields: { i: "input", n: "input" }
+  },
+  {
+    name: "Attach Item to Tag",
+    endpoint: "/api/tag/attach",
+    method: "PATCH",
+    fields: { tagId: "input", itemId: "input" }
+  },
+  {
+    name: "Get Tag by Name",
+    endpoint: "/api/tag/name/:tagName",
+    method: "GET",
+    fields: { tagName: "input" }
+  }
+  ,
+  {
+    name: "Get Tag by ID",
+    endpoint: "/api/tag/id/:tagId",
+    method: "GET",
+    fields: { tagId: "input" }
+  }
+  ,
+  {
+    name: "Get Tags by Item ID",
+    endpoint: "/api/tag/item/:itemId",
+    method: "GET",
+    fields: { itemId: "input" }
+  }
+  ,
   {
     name: "Request Friend",
     endpoint: "/api/friend/request/",

@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { Album, Chat, ExpireFriend, Hangout, Post, Profile, User, WebSession } from "./app";
+import { Album, Chat, ExpireFriend, Hangout, Post, Profile, Tag, User, WebSession } from "./app";
 import { AlbumDoc } from "./concepts/album";
 import { HangoutDoc } from "./concepts/hangout";
 import { ProfileDoc } from "./concepts/profile";
@@ -11,6 +11,44 @@ import Responses from "./responses";
 
 
 class Routes {
+  
+  @Router.post("/tag")
+  async createTag(session: WebSessionDoc, i: string, n:string ){
+    const user = WebSession.getUser(session);
+    const i_id = new ObjectId(i);
+    return await Tag.create(i_id,n);
+  }
+
+  @Router.get("/tag/name/:tagName")
+  async getTagByName(session: WebSessionDoc, tagName: string) {
+      const user = WebSession.getUser(session);
+      // Assuming Tag is a class or module with the getTagByName method
+      return await Tag.getTagByName(tagName);
+  }
+
+  @Router.get("/tag/id/:tagId")
+  async getTagById(session: WebSessionDoc, tagId: string) {
+      const user = WebSession.getUser(session);
+      const objectId = new ObjectId(tagId); // Convert string to ObjectId
+      return await Tag.getTagById(objectId);
+  }
+
+  @Router.get("/tag/item/:itemId")
+  async getTagsByItem(session: WebSessionDoc, itemId: string) {
+      const user = WebSession.getUser(session);
+      const objectId = new ObjectId(itemId); // Convert string to ObjectId
+      return await Tag.getTagsByItemId(objectId);
+  }
+
+  @Router.patch("/tag/attach")
+  async attachItemToTag(session: WebSessionDoc, tagId: string, itemId: string) {
+      const user = WebSession.getUser(session);
+      const tagObjectId = new ObjectId(tagId); // Convert string to ObjectId for the tag
+      const itemObjectId = new ObjectId(itemId); // Convert string to ObjectId for the item
+
+      return await Tag.attach(itemObjectId, tagObjectId);
+  }
+
   //----------Session-----------
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
