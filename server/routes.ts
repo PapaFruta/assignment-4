@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 
-import { Album, Chat, ExpireFriend, Hangout, Post, Profile, Tag, User, WebSession } from "./app";
+import { Album, Chat, ExpireFriend, Hangout, Kudo, Post, Profile, Tag, User, WebSession } from "./app";
 import { AlbumDoc } from "./concepts/album";
 import { HangoutDoc } from "./concepts/hangout";
 import { ProfileDoc } from "./concepts/profile";
@@ -12,6 +12,57 @@ import Responses from "./responses";
 
 class Routes {
   
+  @Router.post("/kudo")
+  async sendKudo(session: WebSessionDoc, receiver: string, task: string, message: string){
+    const giver = WebSession.getUser(session);
+    const receiverId = new ObjectId(receiver);
+    const taskId = new ObjectId(task);
+    
+    return await Kudo.giveKudos(giver, receiverId, taskId, message);
+  }
+
+  @Router.get("/kudo/task/:task")
+  async getKudoForTask(session: WebSessionDoc, task: string){
+    const user = WebSession.getUser(session);
+    const taskId = new ObjectId(task);
+
+    return await Kudo.getKudoForTask(taskId);
+  }
+
+  @Router.get("/kudo/received/:received")
+  async getReceivedKudosOfUser(session: WebSessionDoc, receiver: string){
+    const user = WebSession.getUser(session);
+    const receiverId = new ObjectId(receiver);
+
+    return await Kudo.getReceivedKudosOfUser(receiverId);
+  }
+
+  @Router.get("/kudo/given/:given")
+  async getGivenKudosOfUser(session: WebSessionDoc, giver: string){
+    const user = WebSession.getUser(session);
+    const giverId = new ObjectId(giver);
+
+    return await Kudo.getGivenKudosOfUser(giverId);
+  }
+
+  @Router.get("/kudo/givenCount/:given")
+  async getGivenKudosCount(session: WebSessionDoc, giver: string){
+    const user = WebSession.getUser(session);
+    const giverId = new ObjectId(giver);
+
+    return await Kudo.getGivenKudosCount(giverId);
+  }
+
+  @Router.get("/kudo/receivedCount/:received")
+  async getReceivedKudosCount(session: WebSessionDoc, receiver: string){
+    const user = WebSession.getUser(session);
+    const receiverId = new ObjectId(receiver);
+
+    return await Kudo.getReceivedKudosCount(receiverId);
+  }
+
+
+
   @Router.post("/tag")
   async createTag(session: WebSessionDoc, i: string, n:string ){
     const user = WebSession.getUser(session);

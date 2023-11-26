@@ -12,6 +12,60 @@ type operation = {
 
 const operations: operation[] = [
     {
+      name: "Send Kudos",
+      endpoint: "/api/kudo",
+      method: "POST",
+      fields: { receiver: "input", task: "input", message: "input" }
+    },
+    {
+      "name": "Get Kudo For Task",
+      "endpoint": "/api/kudo/task/:task",
+      "method": "GET",
+      "fields": { "task": "input" }
+    },
+    {
+      "name": "Get Received Kudos Of User",
+      "endpoint": "/api/kudo/received/:received",
+      "method": "GET",
+      "fields": { "receiver": "input" }
+    },
+    {
+      "name": "Get Given Kudos Of User",
+      "endpoint": "/api/kudo/given/:given",
+      "method": "GET",
+      "fields": { "giver": "input" }
+    },
+    {
+      "name": "Get Given Kudos Count",
+      "endpoint": "/api/kudo/givenCount/:given",
+      "method": "GET",
+      "fields": { "giver": "input" }
+    },
+    {
+      "name": "Get Received Kudos Count",
+      "endpoint": "/api/kudo/receivedCount/:received",
+      "method": "GET",
+      "fields": { "receiver": "input" }
+    },
+    {
+      name: "Get Session User (logged in user)",
+      endpoint: "/api/session",
+      method: "GET",
+      fields: {},
+    },
+    {
+      name: "Create User",
+      endpoint: "/api/users",
+      method: "POST",
+      fields: { username: "input", password: "input", profilePic: "input", first: "input", last: "input" },
+    },
+    {
+      name: "Login",
+      endpoint: "/api/login",
+      method: "POST",
+      fields: { username: "input", password: "input" },
+    },
+    {
       name: "Create Tag",
       endpoint: "/api/tag",
       method: "POST",
@@ -194,24 +248,7 @@ const operations: operation[] = [
     method: "DELETE",
     fields: {_id:"input"},
   },
-  {
-    name: "Get Session User (logged in user)",
-    endpoint: "/api/session",
-    method: "GET",
-    fields: {},
-  },
-  {
-    name: "Create User",
-    endpoint: "/api/users",
-    method: "POST",
-    fields: { username: "input", password: "input", profilePic: "input", first: "input", last: "input" },
-  },
-  {
-    name: "Login",
-    endpoint: "/api/login",
-    method: "POST",
-    fields: { username: "input", password: "input" },
-  },
+  
   {
     name: "Logout",
     endpoint: "/api/logout",
